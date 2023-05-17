@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>websocket demo</title>
+        <body>
+            <button onclick="initIcCard()">初始化ic卡</button>
+            <button onclick="writeIcCard()">写入ic卡</button>
+            <button onclick="emptyIcCard()">清空ic卡</button>
+            <button onclick="readIcCard()">读取ic卡内容</button>
+        </body>
+
+        <script>
+            var ws = new WebSocket('ws:localhost:10000/websocket');
+            ws.onopen = function(evt){
+                ws.send('Hello, Server!');
+                console.log("on open");
+            }
+            ws.onclose = function(evt){
+                console.log("on close");
+            }
+            ws.onmessage = function(evt){
+                console.log(evt.data);
+            }
+            function writeIcCard(){
+                msg = {
+                    action:"writeCard",
+                    mac:"D059F21EE252",
+                    buildNumber:1,
+                    floor:1,
+                    endtime: (new Date().getTime() /1000 ) +86400
+                }
+                ws.send(JSON.stringify(msg) );
+            }
+
+            function emptyIcCard(){
+                msg = {
+                    action:"emptyCard"
+                }
+                ws.send(JSON.stringify(msg) );
+            }
+
+            function initIcCard(){
+                msg = {
+                    action:"initCard"
+                }
+                ws.send(JSON.stringify(msg) );
+            }
+            function readIcCard(){
+                msg = {
+                    action:"readCard",
+                }
+                ws.send(JSON.stringify(msg) );
+            }
+        </script>
+    </head>
+    <body>
+    </body
+</html>
