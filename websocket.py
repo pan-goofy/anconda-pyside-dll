@@ -9,7 +9,7 @@ import threading
 
 Clients = []
 class OutputPower():
-    finished = pyqtSignal()
+    finished = pyqtSignal(str)
     async def run(self,arg,s,websocket):
         # 发送消息方法，单独和请求的客户端发消息
         await s('接收socket', websocket)

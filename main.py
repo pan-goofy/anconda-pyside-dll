@@ -68,8 +68,10 @@ class Password(Ui_Form,QDialog):
         elif jsonMsg.get("action") == "readCard":    
             self.writeHotelIcCard()
         self.socket_sethread = OutputPower()    
-        self.socket_sethread.finished.connect(lambda:print("调用子进程 发送消息"))
+        self.socket_sethread.finished.connect(self.sendMsg)
         self.socket_sethread.start()
+    def sendMsg(self,msg):
+        print("send",msg)    
     def connectComm(self):
         port_name = self.cardPort.text()  # 串口名称
         re =self.clib.CE_ConnectComm(port_name.encode())
