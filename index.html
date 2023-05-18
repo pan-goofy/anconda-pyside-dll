@@ -10,7 +10,7 @@
         </body>
 
         <script>
-            var ws = new WebSocket('ws:localhost:10000/websocket');
+            var ws = new WebSocket('ws:192.168.2.10:8989/websocket');
             ws.onopen = function(evt){
                 ws.send('Hello, Server!');
                 console.log("on open");
@@ -34,7 +34,7 @@
 
             function emptyIcCard(){
                 msg = {
-                    action:"emptyCard"
+                    action:"clearCard"
                 }
                 ws.send(JSON.stringify(msg) );
             }

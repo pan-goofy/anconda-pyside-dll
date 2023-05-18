@@ -8,15 +8,14 @@ import json
 import threading
 
 Clients = []
-class OutputPower():
-    finished = pyqtSignal(str)
+class OutputPower(QThread):
     async def run(self,arg,s,websocket):
         # 发送消息方法，单独和请求的客户端发消息
         await s('接收socket', websocket)
         # 群发消息
         await s('----------')
 class SocketThread(QThread):
-    data_received = pyqtSignal(str)
+    data_received = pyqtSignal(str,object)
 
     def __init__(self, host, port):
         super().__init__()
@@ -28,8 +27,9 @@ class SocketThread(QThread):
     # 针对不同的信息进行请求，可以考虑json文本
     async def runCase(self,jsonMsg,websocket):  
         # await OutputPower(jsonMsg,self.s,websocket)
-        op = OutputPower()
-        await op.run(jsonMsg,self.s,websocket)
+        print(1)
+        # op = OutputPower()
+        # await op.run(jsonMsg,self.s,websocket)
 
     # 每一个客户端链接上来就会进一个循环
     async def echo(self,websocket, path):
@@ -44,7 +44,7 @@ class SocketThread(QThread):
                 await websocket.send(message)
                 
                 #返回主线程
-                self.data_received.emit(recv_text)   
+                self.data_received.emit(recv_text,websocket)   
                 # 分析当前的消息 json格式，跳进功能模块分析
                 await self.runCase(jsonMsg='',websocket=websocket)
 
@@ -63,7 +63,7 @@ class SocketThread(QThread):
 
     # 发送消息
     async def sendMsg(self,msg,websocket):
-        print('sendMsg:',msg)
+        print('sendMsg123:',msg)
         if websocket != None:
             await websocket.send(msg)
         else:

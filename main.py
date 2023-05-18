@@ -12,8 +12,9 @@ import socket
 import requests
 import time
 import json
+import asyncio
 from websocket import SocketThread,OutputPower
-
+from errorMsg import getMsg
 class Password(Ui_Form,QDialog):
     clib = ctypes.CDLL("64/CardEncoder.dll")
     hotelInfo = ""
@@ -37,17 +38,21 @@ class Password(Ui_Form,QDialog):
         self.emptyCard.clicked.connect(self.emptyIcCard)
         self.startSocket.clicked.connect(self.startSockets)
     def startSockets(self):
+        #按钮禁止重复点击
+        self.startSocket.setEnabled(False)
         #启动socket  获取酒店hotel 连接发卡器
         self.getHotel()
         self.connectComm()
         port =  self.socketPort.text()
-        self.textLog.append(f"启动socket:{port}")
+        ip = self.get_local_ip()
+        self.textLog.append(f"启动socket:{ip}:{port}")
         # 创建socket应用服务
-        self.socket_thread = SocketThread("127.0.0.1", 10000)
+        self.socket_thread = SocketThread(ip, port)
         self.socket_thread.data_received.connect(self.handle_data_received)
         self.socket_thread.start()
-    def handle_data_received(self,msg):
+    def handle_data_received(self,msg,websocket):
         jsonMsg = {}
+        print("websocket",websocket)
         res  = ""
         try:
             jsonMsg = json.loads(msg)
@@ -61,17 +66,21 @@ class Password(Ui_Form,QDialog):
             endtime = int(jsonMsg.get("endtime"))
             res = self.clib.CE_WriteCard(self.hotelInfo.encode(),buildNumber,floor,mac,endtime,True)  
             self.textLog.append(f"{res}") 
-        elif  jsonMsg.get("action") == "emptyCard":
-            self.clearIcCard()
+        elif  jsonMsg.get("action") == "clearCard":
+            res =self.clearIcCard()
         elif jsonMsg.get("action") == "readCard":    
-            self.readIcCard()    
-        elif jsonMsg.get("action") == "readCard":    
-            self.writeHotelIcCard()
-        self.socket_sethread = OutputPower()    
-        self.socket_sethread.finished.connect(self.sendMsg)
-        self.socket_sethread.start()
-    def sendMsg(self,msg):
-        print("send",msg)    
+            res =self.readIcCard()    
+        elif jsonMsg.get("action") == "initCard":    
+            res =self.writeHotelIcCard()
+        print(res,"res")    
+        if res !="":    
+            data ={
+                "status":res,
+                "msg":getMsg().get(res)
+            } 
+            asyncio.run(self.socket_thread.sendMsg(json.dumps(data),websocket))
+    
+          
     def connectComm(self):
         port_name = self.cardPort.text()  # 串口名称
         re =self.clib.CE_ConnectComm(port_name.encode())
@@ -107,7 +116,7 @@ class Password(Ui_Form,QDialog):
             self.hotelInfo = data['hotelInfo']
         except Exception as e :    
             self.textLog.append(f"json解析失败")
-        self.textLog.append(f"获取hotelInfo: {data['hotelInfo']}")
+        self.textLog.append(f"获取hotelInfo: {data['hotelInfo']}")      
     def addIcCard(self):
         buildNumber =  int(self.building.text())
         floor = int(self.floor.text())
@@ -124,6 +133,7 @@ class Password(Ui_Form,QDialog):
             self.textLog.append("数据写入失败，IC卡非酒店卡或已被初始化为其它酒店的卡")  
         else :
             self.textLog.append(f"写入数据失败,错误码:{res}")         
+        return res    
     def readIcCard(self):
         hotelInfo = self.hotelInfo.encode()
         hotel_array_ptr = ctypes.c_char_p()
@@ -141,7 +151,8 @@ class Password(Ui_Form,QDialog):
         elif res==106:
             self.textLog.append("读取失败，IC卡非酒店卡或已被初始化为其它酒店的卡")  
         else :
-            self.textLog.append(f"读取数据失败,错误码:{res}")    
+            self.textLog.append(f"读取数据失败,错误码:{res}")   
+        return res     
     def clearIcCard(self):
         hotelInfo = self.hotelInfo.encode()
         res = self.clib.CE_ClearCard(hotelInfo)
@@ -153,6 +164,7 @@ class Password(Ui_Form,QDialog):
             self.textLog.append("操作失败，IC卡非酒店卡或已被初始化为其它酒店的卡")  
         else :
             self.textLog.append(f"操作数据失败,错误码:{res}") 
+        return res    
     def writeHotelIcCard(self):
         hotelInfo = self.hotelInfo.encode()
         res = self.clib.CE_InitCard(hotelInfo) 
@@ -164,6 +176,7 @@ class Password(Ui_Form,QDialog):
             self.textLog.append("恢复空白卡失败，IC卡非酒店卡或已被初始化为其它酒店的卡")  
         else :
             self.textLog.append(f"操作数据失败,错误码:{res}") 
+        return res    
     def emptyIcCard(self):
         hotelInfo = self.hotelInfo.encode()
         res = self.clib.CE_DeInitCard(hotelInfo) 
@@ -174,7 +187,14 @@ class Password(Ui_Form,QDialog):
         elif res==106:
             self.textLog.append("恢复空白卡失败，IC卡非酒店卡或已被初始化为其它酒店的卡")  
         else :
-            self.textLog.append(f"操作数据失败,错误码:{res}")         
+            self.textLog.append(f"操作数据失败,错误码:{res}") 
+        return res                
+    def get_local_ip(self):
+        s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        s.connect(('8.8.8.8', 80))
+        ip = s.getsockname()[0]
+        s.close()
+        return ip
         
                        
     
