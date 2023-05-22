@@ -1,0 +1,28 @@
+<RCC>
+  <qresource prefix="myIcon">
+    <file>businesscard.png</file>
+    <file>bussinesscard.png</file>
+    <file>Card.png</file>
+    <file>card1.png</file>
+    <file>card2.png</file>
+    <file>icons.qrc</file>
+    <file>louceng.png</file>
+    <file>louceng1.png</file>
+    <file>menjindukaqi.png</file>
+    <file>name-card.png</file>
+    <file>name-card-fill.png</file>
+    <file>password.png</file>
+    <file>password1.png</file>
+    <file>qidong.png</file>
+    <file>qidong1.png</file>
+    <file>qidong-copy.png</file>
+    <file>secede.png</file>
+    <file>shangpinfang.png</file>
+    <file>shishidukaqi.png</file>
+    <file>shuma-duqiaqi.png</file>
+    <file>start.png</file>
+    <file>xiangsu-fangwuloudong.png</file>
+    <file>zu49.png</file>
+    <file>zuixiaohua.png</file>
+  </qresource>
+</RCC>

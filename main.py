@@ -1,29 +1,51 @@
-from PyQt6.QtWidgets import (
-    QApplication, QDialog, QPushButton, QHBoxLayout, QMessageBox
-)
-from PyQt6.QtCore import QUrl
-from PyQt6.QtWebSockets import QWebSocket
 import sys
 from pyqt6_ui import Ui_Form
 import ctypes
-import tornado.web
 from threading import Thread
-import socket
 import requests
 import time
+import socket
+from PyQt6.QtCore import QThread, pyqtSignal,pyqtSlot,Qt,QCoreApplication
+from PyQt6.QtWidgets import QDialog,QApplication,QMessageBox
 import json
+import configparser
 import asyncio
-from websocket import SocketThread,OutputPower
+from socketServerMain import SocketThread,OutputPower
 from errorMsg import getMsg
+from httpclient import Worker
+import image_rc
 class Password(Ui_Form,QDialog):
-    clib = ctypes.CDLL("64/CardEncoder.dll")
+    clib = ctypes.CDLL("./64/CardEncoder.dll")
+    #读取配置
+    cf = configparser.ConfigParser()
+    cf.read('./config.ini', encoding='utf-8')
+    cf_cardPort = cf.get("Sections","cardPort")
+    cf_appid = cf.get("Sections","appid")
+    cf_secrets = cf.get("Sections","secrets")
+    cf_socketPort = cf.get("Sections",'socketPort')
     hotelInfo = ""
+
     def __init__(self):
         super().__init__()
         self.setupUi(self)
+        self.setWindowFlag(Qt.WindowType.FramelessWindowHint)
+        #self.setAttribute(Qt.WidgetAttribute.WA_TranslucentBackground)
         #uic.loadUi('./index.ui',self)
         self.show()
-           
+        #加载配置文件
+        _translate = QCoreApplication.translate
+        print(self.cf_cardPort)
+        self.cardPort.setText(_translate("Form", self.cf_cardPort))
+        self.appid.setText(_translate("Form", self.cf_appid))
+        self.secrets.setText(_translate("Form", self.cf_secrets))
+        self.socketPort.setText(_translate("Form", self.cf_socketPort))
+        self.time.setText(_translate("Form", str(int(time.time())+86400)))
+
+        #保存配置
+        self.saveConfig.clicked.connect(self.saveSetting)
+        #退出
+        self.exitCard.clicked.connect(self.showDialog)
+        self.minimizeCard.clicked.connect(self.showMinimized)
         self.connect.clicked.connect(self.connectComm)
         self.onconnect.clicked.connect(self.unConnectComm)
         
@@ -37,6 +59,29 @@ class Password(Ui_Form,QDialog):
         #制作空白卡
         self.emptyCard.clicked.connect(self.emptyIcCard)
         self.startSocket.clicked.connect(self.startSockets)
+
+    def saveSetting(self):
+        self.cf.set("Sections","cardPort", self.cardPort.text())  
+        self.cf.set("Sections","appid", self.appid.text())  
+        self.cf.set("Sections","secrets", self.secrets.text())  
+        self.cf.set("Sections","socketPort", self.socketPort.text())  
+
+        with open('config.ini', 'w') as f:
+            self.cf.write(f)
+        self.textLog.append(f"保存配置成功")
+ 
+    def showDialog(self):
+        try:
+            reply = QMessageBox.question(self, '退出', '确定退出程序')
+            reply = str(reply)
+            if reply == 'StandardButton.Yes':
+                 sys.exit()    
+            else:
+                return
+        except Exception as e:
+            print(e)
+        print(reply)    
+
     def startSockets(self):
         #按钮禁止重复点击
         self.startSocket.setEnabled(False)
@@ -117,6 +162,21 @@ class Password(Ui_Form,QDialog):
         except Exception as e :    
             self.textLog.append(f"json解析失败")
         self.textLog.append(f"获取hotelInfo: {data['hotelInfo']}")      
+        self.textLog.append(f"发卡器断开失败{re}")   
+    def getHotel(self):
+        self.textLog.append("获取hotelInfo中...")
+        self.worker_thread = QThread()
+        self.worker = Worker(self.appid.text(),self.secrets.text())
+        self.worker.moveToThread(self.worker_thread)
+        self.worker.finished.connect(self.worker_thread.quit)
+        self.worker.result.connect(self.show_result)
+        self.worker_thread.started.connect(self.worker.do_work)
+        self.worker_thread.start()  
+    @pyqtSlot(str)
+    def show_result(self, result):
+        print("返回结果",result)
+        self.hotelInfo =result
+        self.textLog.append(result)      
     def addIcCard(self):
         buildNumber =  int(self.building.text())
         floor = int(self.floor.text())
@@ -195,7 +255,7 @@ class Password(Ui_Form,QDialog):
         ip = s.getsockname()[0]
         s.close()
         return ip
-        
+
                        
     
 if __name__ == "__main__":
