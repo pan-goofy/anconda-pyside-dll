@@ -13,6 +13,9 @@ class Ui_Form(object):
     def setupUi(self, Form):
         Form.setObjectName("Form")
         Form.resize(1116, 976)
+        icon = QtGui.QIcon()
+        icon.addPixmap(QtGui.QPixmap("Icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        Form.setWindowIcon(icon)
         self.horizontalLayout_16 = QtWidgets.QHBoxLayout(Form)
         self.horizontalLayout_16.setObjectName("horizontalLayout_16")
         self.horizontalLayout_14 = QtWidgets.QHBoxLayout()
@@ -47,9 +50,9 @@ class Ui_Form(object):
 "    border-radius:15px;    \n"
 "}")
         self.exitCard.setText("")
-        icon = QtGui.QIcon()
-        icon.addPixmap(QtGui.QPixmap(":/myIcon/qidong-copy.png"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-        self.exitCard.setIcon(icon)
+        icon1 = QtGui.QIcon()
+        icon1.addPixmap(QtGui.QPixmap(":/myIcon/qidong-copy.png"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        self.exitCard.setIcon(icon1)
         self.exitCard.setIconSize(QtCore.QSize(30, 30))
         self.exitCard.setAutoDefault(False)
         self.exitCard.setObjectName("exitCard")
@@ -67,9 +70,9 @@ class Ui_Form(object):
 "border-radius:15px;    \n"
 "}")
         self.minimizeCard.setText("")
-        icon1 = QtGui.QIcon()
-        icon1.addPixmap(QtGui.QPixmap(":/myIcon/zuixiaohua.png"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-        self.minimizeCard.setIcon(icon1)
+        icon2 = QtGui.QIcon()
+        icon2.addPixmap(QtGui.QPixmap(":/myIcon/zuixiaohua.png"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        self.minimizeCard.setIcon(icon2)
         self.minimizeCard.setIconSize(QtCore.QSize(30, 30))
         self.minimizeCard.setObjectName("minimizeCard")
         self.horizontalLayout_15.addWidget(self.minimizeCard)
@@ -89,6 +92,9 @@ class Ui_Form(object):
 "border-radius:20px;    \n"
 "background-color: rgb(206, 228, 255);\n"
 "}")
+        icon3 = QtGui.QIcon()
+        icon3.addPixmap(QtGui.QPixmap(":/myIcon/menjindukaqi.png"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        self.saveConfig.setIcon(icon3)
         self.saveConfig.setObjectName("saveConfig")
         self.horizontalLayout_17.addWidget(self.saveConfig)
         self.getHotelInfo = QtWidgets.QPushButton(parent=self.cardFrame)
@@ -103,9 +109,9 @@ class Ui_Form(object):
 "border-radius:20px;    \n"
 "background-color: rgb(206, 228, 255);\n"
 "}")
-        icon2 = QtGui.QIcon()
-        icon2.addPixmap(QtGui.QPixmap(":/myIcon/xiangsu-fangwuloudong.png"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-        self.getHotelInfo.setIcon(icon2)
+        icon4 = QtGui.QIcon()
+        icon4.addPixmap(QtGui.QPixmap(":/myIcon/xiangsu-fangwuloudong.png"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        self.getHotelInfo.setIcon(icon4)
         self.getHotelInfo.setObjectName("getHotelInfo")
         self.horizontalLayout_17.addWidget(self.getHotelInfo)
         self.verticalLayout.addLayout(self.horizontalLayout_17)
@@ -173,9 +179,9 @@ class Ui_Form(object):
 "border-radius:20px;    \n"
 "background-color: rgb(206, 228, 255);\n"
 "}")
-        icon3 = QtGui.QIcon()
-        icon3.addPixmap(QtGui.QPixmap(":/myIcon/shishidukaqi.png"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-        self.connect.setIcon(icon3)
+        icon5 = QtGui.QIcon()
+        icon5.addPixmap(QtGui.QPixmap(":/myIcon/shishidukaqi.png"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        self.connect.setIcon(icon5)
         self.connect.setObjectName("connect")
         self.horizontalLayout.addWidget(self.connect)
         self.onconnect = QtWidgets.QPushButton(parent=self.cardFrame)
@@ -191,9 +197,9 @@ class Ui_Form(object):
 "border-radius:20px;    \n"
 "\n"
 "}")
-        icon4 = QtGui.QIcon()
-        icon4.addPixmap(QtGui.QPixmap(":/myIcon/shuma-duqiaqi.png"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-        self.onconnect.setIcon(icon4)
+        icon6 = QtGui.QIcon()
+        icon6.addPixmap(QtGui.QPixmap(":/myIcon/shuma-duqiaqi.png"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        self.onconnect.setIcon(icon6)
         self.onconnect.setObjectName("onconnect")
         self.horizontalLayout.addWidget(self.onconnect)
         self.verticalLayout.addLayout(self.horizontalLayout)
@@ -208,9 +214,9 @@ class Ui_Form(object):
 "border-radius:15px;    \n"
 "\n"
 "}")
-        icon5 = QtGui.QIcon()
-        icon5.addPixmap(QtGui.QPixmap(":/myIcon/card1.png"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-        self.addCard.setIcon(icon5)
+        icon7 = QtGui.QIcon()
+        icon7.addPixmap(QtGui.QPixmap(":/myIcon/card1.png"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        self.addCard.setIcon(icon7)
         self.addCard.setObjectName("addCard")
         self.horizontalLayout_13.addWidget(self.addCard)
         self.readCard = QtWidgets.QPushButton(parent=self.cardFrame)
@@ -220,9 +226,9 @@ class Ui_Form(object):
 "border-radius:15px;    \n"
 "\n"
 "}")
-        icon6 = QtGui.QIcon()
-        icon6.addPixmap(QtGui.QPixmap(":/myIcon/name-card.png"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-        self.readCard.setIcon(icon6)
+        icon8 = QtGui.QIcon()
+        icon8.addPixmap(QtGui.QPixmap(":/myIcon/name-card.png"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        self.readCard.setIcon(icon8)
         self.readCard.setObjectName("readCard")
         self.horizontalLayout_13.addWidget(self.readCard)
         self.clearCard = QtWidgets.QPushButton(parent=self.cardFrame)
@@ -232,9 +238,9 @@ class Ui_Form(object):
 "border-radius:15px;    \n"
 "\n"
 "}")
-        icon7 = QtGui.QIcon()
-        icon7.addPixmap(QtGui.QPixmap(":/myIcon/louceng1.png"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-        self.clearCard.setIcon(icon7)
+        icon9 = QtGui.QIcon()
+        icon9.addPixmap(QtGui.QPixmap(":/myIcon/louceng1.png"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        self.clearCard.setIcon(icon9)
         self.clearCard.setObjectName("clearCard")
         self.horizontalLayout_13.addWidget(self.clearCard)
         self.horizontalLayout_13.setStretch(0, 1)
@@ -295,9 +301,9 @@ class Ui_Form(object):
 "border-radius:20px;    \n"
 "background-color: rgb(206, 228, 255);\n"
 "}")
-        icon8 = QtGui.QIcon()
-        icon8.addPixmap(QtGui.QPixmap(":/myIcon/zu49.png"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-        self.writeHotelCard.setIcon(icon8)
+        icon10 = QtGui.QIcon()
+        icon10.addPixmap(QtGui.QPixmap(":/myIcon/zu49.png"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        self.writeHotelCard.setIcon(icon10)
         self.writeHotelCard.setObjectName("writeHotelCard")
         self.horizontalLayout_8.addWidget(self.writeHotelCard)
         self.emptyCard = QtWidgets.QPushButton(parent=self.cardFrame)
@@ -306,9 +312,9 @@ class Ui_Form(object):
 "border-radius:20px;    \n"
 "background-color:  rgb(255, 213, 253);\n"
 "}")
-        icon9 = QtGui.QIcon()
-        icon9.addPixmap(QtGui.QPixmap(":/myIcon/louceng.png"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-        self.emptyCard.setIcon(icon9)
+        icon11 = QtGui.QIcon()
+        icon11.addPixmap(QtGui.QPixmap(":/myIcon/louceng.png"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        self.emptyCard.setIcon(icon11)
         self.emptyCard.setObjectName("emptyCard")
         self.horizontalLayout_8.addWidget(self.emptyCard)
         self.horizontalLayout_8.setStretch(0, 1)

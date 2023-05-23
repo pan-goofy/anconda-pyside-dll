@@ -5,8 +5,9 @@
         <body>
             <button onclick="initIcCard()">初始化ic卡</button>
             <button onclick="writeIcCard()">写入ic卡</button>
-            <button onclick="emptyIcCard()">清空ic卡</button>
+            <button onclick="clearIcCard()">清空ic卡</button>
             <button onclick="readIcCard()">读取ic卡内容</button>
+            <button onclick="emptyIcCard()">恢复空白卡</button>
         </body>
 
         <script>
@@ -32,9 +33,17 @@
                 ws.send(JSON.stringify(msg) );
             }
 
-            function emptyIcCard(){
+            function clearIcCard(){
                 msg = {
                     action:"clearCard"
+                }
+                ws.send(JSON.stringify(msg) );
+            }
+
+            
+            function emptyIcCard(){
+                msg = {
+                    action:"emptyCard"
                 }
                 ws.send(JSON.stringify(msg) );
             }

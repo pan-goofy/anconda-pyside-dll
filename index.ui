@@ -11,7 +11,11 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Form</string>
+   <string>读卡器</string>
+  </property>
+  <property name="windowIcon">
+   <iconset>
+    <normaloff>Icon.ico</normaloff>Icon.ico</iconset>
   </property>
   <layout class="QHBoxLayout" name="horizontalLayout_16">
    <item>
@@ -191,6 +195,10 @@ background-color: rgb(206, 228, 255);
             </property>
             <property name="text">
              <string>保存配置</string>
+            </property>
+            <property name="icon">
+             <iconset resource="iconRead/icons.qrc">
+              <normaloff>:/myIcon/menjindukaqi.png</normaloff>:/myIcon/menjindukaqi.png</iconset>
             </property>
            </widget>
           </item>

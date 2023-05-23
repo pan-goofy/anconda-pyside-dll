@@ -32,7 +32,7 @@ class SocketThread(QThread):
     # 每一个客户端链接上来就会进一个循环
     async def echo(self,websocket, path):
         Clients.append(websocket)
-        await websocket.send(json.dumps({"type": "handshake"}))
+        await websocket.send(json.dumps({"status":0,"type": "connect ok"}))
 
         while True:
             try:

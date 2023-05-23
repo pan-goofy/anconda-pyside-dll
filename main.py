@@ -24,6 +24,7 @@ class Password(Ui_Form,QDialog):
     cf_secrets = cf.get("Sections","secrets")
     cf_socketPort = cf.get("Sections",'socketPort')
     hotelInfo = ""
+    icCards = ""
 
     def __init__(self):
         super().__init__()
@@ -99,6 +100,7 @@ class Password(Ui_Form,QDialog):
         jsonMsg = {}
         print("websocket",websocket)
         res  = ""
+        icCards = ""
         try:
             jsonMsg = json.loads(msg)
         except ValueError:
@@ -115,13 +117,17 @@ class Password(Ui_Form,QDialog):
             res =self.clearIcCard()
         elif jsonMsg.get("action") == "readCard":    
             res =self.readIcCard()    
+            icCards  = json.loads(self.icCards)
         elif jsonMsg.get("action") == "initCard":    
             res =self.writeHotelIcCard()
+        elif jsonMsg.get("action") == "emptyCard":    
+            res =self.emptyIcCard()    
         print(res,"res")    
         if res !="":    
             data ={
                 "status":res,
-                "msg":getMsg().get(res)
+                "msg":getMsg().get(res),
+                "list" :icCards
             } 
             asyncio.run(self.socket_thread.sendMsg(json.dumps(data),websocket))
     
@@ -184,7 +190,7 @@ class Password(Ui_Form,QDialog):
         time  = self.time.text()
         hotelInfo = self.hotelInfo.encode()
         allowLockOut = True
-        res = self.clib.CE_WriteCard(hotelInfo,buildNumber,floor,mac,time,allowLockOut)  
+        res = self.clib.CE_WriteCard(hotelInfo,buildNumber,floor,mac,int(time),allowLockOut)  
         if res==0:
             self.textLog.append(f"写入数据成功{res}")
         elif res==16:
@@ -196,6 +202,7 @@ class Password(Ui_Form,QDialog):
         return res    
     def readIcCard(self):
         hotelInfo = self.hotelInfo.encode()
+        
         hotel_array_ptr = ctypes.c_char_p()
         
         res = self.clib.CE_ReadCard(hotelInfo,ctypes.byref(hotel_array_ptr))
@@ -203,6 +210,7 @@ class Password(Ui_Form,QDialog):
             #获取字符串数组
             try:
                 self.textLog.append(f"读取数据成功{hotel_array_ptr.value.decode()}")
+                self.icCards = hotel_array_ptr.value
             except:
                 print("读取数据错误")  
            
