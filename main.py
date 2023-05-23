@@ -25,7 +25,7 @@ class Password(Ui_Form,QDialog):
     cf_socketPort = cf.get("Sections",'socketPort')
     hotelInfo = ""
     icCards = ""
-
+    sectors = ""
     def __init__(self):
         super().__init__()
         self.setupUi(self)
@@ -82,7 +82,16 @@ class Password(Ui_Form,QDialog):
         except Exception as e:
             print(e)
         print(reply)    
-
+    def getSectors(self):
+        sectors = ctypes.c_char_p()
+        res = self.clib.CE_GetSectors(ctypes.byref(sectors))    
+        if res ==0:
+            self.sectors  = sectors.value
+            self.textLog.append(f"获取扇区成功{sectors.value}")
+        elif res ==16:
+            self.textLog.append(f"发卡器未连接")   
+        else:
+            self.textLog.append(f"获取扇区失败")    
     def startSockets(self):
         #按钮禁止重复点击
         self.startSocket.setEnabled(False)
@@ -140,8 +149,9 @@ class Password(Ui_Form,QDialog):
             self.textLog.append(f"连接成功{re}")
             #配置发卡器
             #config = self.clib.CE_InitCardEncoder(self.hotelInfo)
-            source  = "11111111111000000".encode()
-            san=self.clib.CE_SetSectors(source)
+            self.getSectors()
+            #source  = "11111111111000000".encode()
+            san=self.clib.CE_SetSectors(self.sectors)
             print("san",san)
         if re ==1:
             print(f"连接失败{re}")  
