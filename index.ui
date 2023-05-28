@@ -17,12 +17,9 @@
    <iconset>
     <normaloff>Icon.ico</normaloff>Icon.ico</iconset>
   </property>
-  <layout class="QHBoxLayout" name="horizontalLayout_16">
+  <layout class="QHBoxLayout" name="horizontalLayout_18">
    <item>
-    <layout class="QHBoxLayout" name="horizontalLayout_14">
-     <property name="spacing">
-      <number>6</number>
-     </property>
+    <layout class="QHBoxLayout" name="horizontalLayout_16">
      <item>
       <widget class="QFrame" name="cardFrame">
        <property name="styleSheet">
@@ -39,7 +36,7 @@ background-color: rgb(255, 255, 255);
        </property>
        <layout class="QVBoxLayout" name="verticalLayout">
         <item>
-         <layout class="QHBoxLayout" name="horizontalLayout_15" stretch="1,0,4">
+         <layout class="QHBoxLayout" name="horizontalLayout_15" stretch="1,1,1,20">
           <property name="spacing">
            <number>0</number>
           </property>
@@ -97,6 +94,22 @@ background-color: rgb(255, 255, 255);
            </widget>
           </item>
           <item>
+           <spacer name="verticalSpacer_3">
+            <property name="orientation">
+             <enum>Qt::Vertical</enum>
+            </property>
+            <property name="sizeType">
+             <enum>QSizePolicy::Fixed</enum>
+            </property>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>20</width>
+              <height>30</height>
+             </size>
+            </property>
+           </spacer>
+          </item>
+          <item>
            <widget class="QPushButton" name="minimizeCard">
             <property name="sizePolicy">
              <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
@@ -138,17 +151,14 @@ border-radius:15px;
            </widget>
           </item>
           <item>
-           <spacer name="verticalSpacer_3">
+           <spacer name="verticalSpacer_6">
             <property name="orientation">
              <enum>Qt::Vertical</enum>
-            </property>
-            <property name="sizeType">
-             <enum>QSizePolicy::Fixed</enum>
             </property>
             <property name="sizeHint" stdset="0">
              <size>
               <width>20</width>
-              <height>30</height>
+              <height>40</height>
              </size>
             </property>
            </spacer>
@@ -432,6 +442,54 @@ border-radius:20px;
          </layout>
         </item>
         <item>
+         <layout class="QHBoxLayout" name="horizontalLayout_14">
+          <item>
+           <widget class="QPushButton" name="setCard">
+            <property name="minimumSize">
+             <size>
+              <width>100</width>
+              <height>50</height>
+             </size>
+            </property>
+            <property name="maximumSize">
+             <size>
+              <width>16777215</width>
+              <height>16777215</height>
+             </size>
+            </property>
+            <property name="styleSheet">
+             <string notr="true">#setCard{
+border-radius:20px;	
+background-color: rgb(206, 228, 255);
+}</string>
+            </property>
+            <property name="text">
+             <string>配置发卡器</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QPushButton" name="openSound">
+            <property name="minimumSize">
+             <size>
+              <width>50</width>
+              <height>50</height>
+             </size>
+            </property>
+            <property name="styleSheet">
+             <string notr="true">#openSound{
+border-radius:20px;	
+background-color: rgb(206, 228, 255);
+}</string>
+            </property>
+            <property name="text">
+             <string>发声</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </item>
+        <item>
          <spacer name="verticalSpacer_2">
           <property name="orientation">
            <enum>Qt::Vertical</enum>
@@ -439,7 +497,7 @@ border-radius:20px;
           <property name="sizeHint" stdset="0">
            <size>
             <width>20</width>
-            <height>152</height>
+            <height>124</height>
            </size>
           </property>
          </spacer>
@@ -682,7 +740,7 @@ background-color:  rgb(255, 213, 253);
           <property name="sizeHint" stdset="0">
            <size>
             <width>20</width>
-            <height>85</height>
+            <height>56</height>
            </size>
           </property>
          </spacer>
@@ -691,8 +749,52 @@ background-color:  rgb(255, 213, 253);
          <layout class="QHBoxLayout" name="horizontalLayout_9">
           <item>
            <widget class="QLabel" name="label_7">
+            <property name="minimumSize">
+             <size>
+              <width>50</width>
+              <height>0</height>
+             </size>
+            </property>
+            <property name="maximumSize">
+             <size>
+              <width>16777215</width>
+              <height>16777215</height>
+             </size>
+            </property>
             <property name="text">
-             <string>socket端口号</string>
+             <string>ip地址</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QLineEdit" name="socketIp">
+            <property name="minimumSize">
+             <size>
+              <width>200</width>
+              <height>40</height>
+             </size>
+            </property>
+            <property name="maximumSize">
+             <size>
+              <width>16777215</width>
+              <height>16777215</height>
+             </size>
+            </property>
+            <property name="text">
+             <string>127.0.0.1</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QLabel" name="label_9">
+            <property name="minimumSize">
+             <size>
+              <width>50</width>
+              <height>0</height>
+             </size>
+            </property>
+            <property name="text">
+             <string>端口</string>
             </property>
            </widget>
           </item>
@@ -702,6 +804,12 @@ background-color:  rgb(255, 213, 253);
              <size>
               <width>0</width>
               <height>40</height>
+             </size>
+            </property>
+            <property name="maximumSize">
+             <size>
+              <width>50</width>
+              <height>200</height>
              </size>
             </property>
             <property name="text">
@@ -715,6 +823,12 @@ background-color:  rgb(255, 213, 253);
              <size>
               <width>0</width>
               <height>40</height>
+             </size>
+            </property>
+            <property name="maximumSize">
+             <size>
+              <width>50</width>
+              <height>16777215</height>
              </size>
             </property>
             <property name="text">
@@ -732,7 +846,7 @@ background-color:  rgb(255, 213, 253);
           <property name="sizeHint" stdset="0">
            <size>
             <width>20</width>
-            <height>84</height>
+            <height>56</height>
            </size>
           </property>
          </spacer>

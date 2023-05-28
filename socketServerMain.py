@@ -4,6 +4,10 @@ import asyncio
 import websockets 
 import json
 import threading
+import inspect
+import ctypes
+from threading import Event
+
 
 Clients = []
 class OutputPower(QThread):
@@ -13,12 +17,16 @@ class OutputPower(QThread):
         # 群发消息
         await s('----------')
 class SocketThread(QThread):
+    thread = ""
+    websocket = ""
+    server = None
     data_received = pyqtSignal(str,object)
 
-    def __init__(self, host, port):
+    def __init__(self, host, port ):
         super().__init__()
         self.host = host
         self.port = port
+        self.is_running = False
     	# 发消息给客户端的回调函数
     async def s(self,msg,websocket=None):
         await self.sendMsg(msg,websocket)
@@ -28,16 +36,17 @@ class SocketThread(QThread):
         print(1)
         # op = OutputPower()
         # await op.run(jsonMsg,self.s,websocket)
-
     # 每一个客户端链接上来就会进一个循环
     async def echo(self,websocket, path):
         Clients.append(websocket)
-        await websocket.send(json.dumps({"status":0,"type": "connect ok"}))
-
-        while True:
+        self.websocket = websocket
+        await websocket.send(json.dumps({"status":0,"type": "connect"}))
+        if not self.is_running:
+            await websocket.close()
+        while self.is_running:
             try:
                 recv_text = await websocket.recv()
-                message = "收到消息: {}".format(recv_text)
+                message = recv_text
                 # 直接返回客户端收到的信息
                 await websocket.send(message)
                 
@@ -76,15 +85,19 @@ class SocketThread(QThread):
 
     # 启动服务器
     async def runServer(self):
-        async with websockets.serve(self.echo, self.host, self.port):
+        self.is_running = True
+        self.server = websockets.serve(self.echo, self.host, self.port)
+        async with  self.server:
             await asyncio.Future()  # run forever    
 	# 多线程模式，防止阻塞主线程无法做其他事情
     def WebSocketServer(self):
-        asyncio.run(self.runServer())
+        asyncio.run(self.runServer())     
+    async def stopThread(self):
+        print("关闭socket")
+        self.is_running=False
 
     def run(self):
-        # 多线程启动，否则会堵塞
-        thread = threading.Thread(target=self.WebSocketServer)
-        thread.start()
-        thread.join()
+        self.thread = threading.Thread(target=self.WebSocketServer)
+        self.thread.start()
+        self.thread.join()
         print("go!!!")
