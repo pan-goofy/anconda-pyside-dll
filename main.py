@@ -142,7 +142,8 @@ class Password(Ui_Form,QDialog):
             floor = int(jsonMsg.get("floor"))
             mac = jsonMsg.get("mac").encode()
             endtime = int(jsonMsg.get("endtime"))
-            res = self.clib.CE_WriteCard(self.hotelInfo.encode(),buildNumber,floor,mac,endtime,False)  
+            allowLockOut = bool(jsonMsg.get("allowLockOut"))
+            res = self.clib.CE_WriteCard(self.hotelInfo.encode(),buildNumber,floor,mac,endtime,allowLockOut)  
             self.textLog.append(f"{res}") 
         elif  jsonMsg.get("action") == "clearCard":
             res =self.clearIcCard()
