@@ -5,10 +5,11 @@ from threading import Thread
 import requests
 import time
 import socket
-from PyQt6.QtCore import QThread, pyqtSignal,pyqtSlot,Qt,QCoreApplication
-from PyQt6.QtWidgets import QDialog,QApplication,QMessageBox
+from PyQt6.QtCore import QThread, pyqtSignal,pyqtSlot,Qt,QCoreApplication,QPoint,QMimeData
+from PyQt6.QtWidgets import QDialog,QApplication,QMessageBox,QMainWindow,QSystemTrayIcon,QMenu
 import json
 import configparser
+from PyQt6.QtGui import QDrag,QCursor,QAction,QIcon
 import asyncio
 from socketServerMain import SocketThread,OutputPower
 from errorMsg import getMsg
@@ -27,12 +28,37 @@ class Password(Ui_Form,QDialog):
     cf_socketIp = cf.get("Sections",'socketIp')
     hotelInfo = ""
     icCards = ""
+    icNumber = ""
     sectors = ""
     isConnect  = True
     def __init__(self):
         super().__init__()
         self.setupUi(self)
         self.setWindowFlag(Qt.WindowType.FramelessWindowHint)
+    
+     # 创建系统托盘图标
+        self.tray_icon = QSystemTrayIcon(self)
+        self.tray_icon.setIcon(QIcon('Icon.ico'))
+
+        # 创建托盘菜单
+        self.tray_menu = QMenu(self)
+        self.show_action = QAction("显示窗口", self)
+        self.quit_action = QAction("退出", self)
+        self.tray_menu.addAction(self.show_action)
+        self.tray_menu.addAction(self.quit_action)
+
+        # 将托盘菜单设置为系统托盘图标的菜单
+        self.tray_icon.setContextMenu(self.tray_menu)
+
+        # 将系统托盘图标显示出来
+        self.tray_icon.show()
+
+        # 将“显示窗口”菜单项连接到槽函数
+        self.show_action.triggered.connect(self.showNormal)
+
+        # 将窗口最小化时隐藏窗口并显示系统托盘图标
+        self.setWindowFlags(self.windowFlags() | Qt.WindowType.Tool)
+        self.tray_icon.activated.connect(self.trayClick)
         #self.setAttribute(Qt.WidgetAttribute.WA_TranslucentBackground)
         #uic.loadUi('./index.ui',self)
         self.show()
@@ -52,7 +78,9 @@ class Password(Ui_Form,QDialog):
         self.openSound.clicked.connect(self.startSound)
         #退出
         self.exitCard.clicked.connect(self.showDialog)
+        #最小化
         self.minimizeCard.clicked.connect(self.showMinimized)
+        #self.minimizeCard.clicked.connect(self.trayClick)
         self.connect.clicked.connect(self.connectComm)
         self.onconnect.clicked.connect(self.unConnectComm)
         
@@ -62,13 +90,15 @@ class Password(Ui_Form,QDialog):
         self.clearCard.clicked.connect(self.clearIcCard)
         #配置发卡器
         self.setCard.clicked.connect(self.setCardHotel)
-
+        
+        self.getCardNumber.clicked.connect(self.getIcCardNumber)
         #写入酒店专用卡
         self.writeHotelCard.clicked.connect(self.writeHotelIcCard)
         #制作空白卡
         self.emptyCard.clicked.connect(self.emptyIcCard)
-        self.startSocket.clicked.connect(self.startSockets)
-
+        #self.startSocket.clicked.connect(self.startSockets)
+        #启动socket
+        self.startSockets()
     def saveSetting(self):
         self.cf.set("Sections","cardPort", self.cardPort.text())  
         self.cf.set("Sections","appid", self.appid.text())  
@@ -105,16 +135,17 @@ class Password(Ui_Form,QDialog):
     def startSockets(self):
         #按钮禁止重复点击
         text = "启动"  if self.isConnect==False  else "断开"
-        self.startSocket.setText(text)
-        self.isConnect  = not self.isConnect
-        #如果已经连接断开socket
-        if self.isConnect:
-            self.socket_thread.quit()
-            #self.socket_thread.wait()
-            asyncio.run(self.socket_thread.stopThread())
-            print("线程关闭")
-            self.textLog.append(f"断开socket连接")
-            return
+        #self.startSocket.setText(text)
+        self.startSocket.setEnabled(False)
+        # self.isConnect  = not self.isConnect
+        # #如果已经连接断开socket
+        # if self.isConnect:
+        #     asyncio.run(self.socket_thread.stopThread())
+        #     self.socket_thread.quit()
+        #     #self.socket_thread.wait()
+        #     print("线程关闭")
+        #     self.textLog.append(f"断开socket连接")
+        #     return
         #启动socket  获取酒店hotel 连接发卡器
         self.getHotel()
         self.connectComm()
@@ -166,13 +197,16 @@ class Password(Ui_Form,QDialog):
         elif jsonMsg.get("action") == "setCardHotel":    
             res =self.setCardHotel()     
         elif jsonMsg.get("action") == "getHotel":    
-            res =self.getHotel()             
+            res =self.getHotel()    
+        elif jsonMsg.get("action") == "getIcCardNumber":    
+            res =self.getIcCardNumber()                     
         print(res,"res")    
         if res !="":    
             data ={
                 "status":res,
                 "msg":getMsg().get(res),
                 "list" :icCards,
+                "cardNo" : self.icNumber,
                 "type" : jsonMsg.get("action")
             } 
             asyncio.run(self.socket_thread.sendMsg(json.dumps(data),websocket))
@@ -187,8 +221,21 @@ class Password(Ui_Form,QDialog):
         else:
             self.textLog.append(f"发声失败{re}") 
         return re     
-
+    
+    def getIcCardNumber(self):  
         
+        no = ctypes.c_char_p()
+        re = self.clib.CE_GetCardNo(ctypes.byref(no))
+        if re==0:
+            self.icNumber = str(no.value,"UTF-8")
+            self.textLog.append(f"获取成功{re}卡号:{self.icNumber}")   
+        elif re==2:      
+            self.textLog.append(f"参数错误{re}")    
+        elif re==21:
+            self.textLog.append(f"非Ic卡{re}") 
+        else:
+            self.textLog.append(f"其他错误{re}")  
+        return re     
           
     def connectComm(self):
         port_name = self.cardPort.text()  # 串口名称
@@ -335,21 +382,29 @@ class Password(Ui_Form,QDialog):
         ip = s.getsockname()[0]
         s.close()
         return ip
-    # def mousePressEvent(self, event):
-    #     if event.button()==Qt.LeftButton:
-    #     self.m_flag=True
-    #     self.m_Position=event.globalPos()-self.pos() #获取鼠标相对窗口的位置
-    #     event.accept()
-    #     self.setCursor(QCursor(Qt.OpenHandCursor)) #更改鼠标图标
-    
-    # def mouseMoveEvent(self, QMouseEvent):
-    #     if Qt.LeftButton and self.m_flag:
-    #     self.move(QMouseEvent.globalPos()-self.m_Position)#更改窗口位置
-    #     QMouseEvent.accept()
-    
-    # def mouseReleaseEvent(self, QMouseEvent):
-    #     self.m_flag=False
-    #     self.setCursor(QCursor(Qt.ArrowCursor))
+    def mousePressEvent(self, event):
+        # 鼠标按下时记录坐标
+        self.mouse_pos = event.globalPosition()
+
+    def mouseMoveEvent(self, event):
+        # 鼠标移动时计算移动距离
+        if self.mouse_pos:
+            diff = event.globalPosition() - self.mouse_pos
+            self.move(self.pos() + diff.toPoint())
+            self.mouse_pos = event.globalPosition()
+
+    def mouseReleaseEvent(self, event):
+        # 鼠标释放时清空坐标
+        self.mouse_pos = None
+    def trayClick(self, reason):
+        if reason == QSystemTrayIcon.ActivationReason.Trigger:
+            self.showNormal()    
+    def closeEvent(self, event):
+        # 点击关闭按钮时隐藏窗口并显示系统托盘图标
+        event.ignore()
+        self.hide()
+        self.tray_icon.showMessage("应用程序最小化到托盘", "单击托盘图标以恢复应用程序。")        
+
 
                        
     

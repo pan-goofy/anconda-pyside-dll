@@ -41,9 +41,8 @@ class SocketThread(QThread):
         Clients.append(websocket)
         self.websocket = websocket
         await websocket.send(json.dumps({"status":0,"type": "connect"}))
-        if not self.is_running:
-            await websocket.close()
-        while self.is_running:
+        
+        while True:
             try:
                 recv_text = await websocket.recv()
                 message = recv_text
@@ -66,8 +65,7 @@ class SocketThread(QThread):
             except Exception as e:
                 print(e)
                 Clients.remove(websocket)
-                break
-
+                break        
     # 发送消息
     async def sendMsg(self,msg,websocket):
         print('sendMsg123:',msg)
@@ -86,6 +84,7 @@ class SocketThread(QThread):
     # 启动服务器
     async def runServer(self):
         self.is_running = True
+        print("启动",self.is_running)
         self.server = websockets.serve(self.echo, self.host, self.port)
         async with  self.server:
             await asyncio.Future()  # run forever    
@@ -94,7 +93,9 @@ class SocketThread(QThread):
         asyncio.run(self.runServer())     
     async def stopThread(self):
         print("关闭socket")
+        #await self.websocket.close(reason="exit")
         self.is_running=False
+        return False
 
     def run(self):
         self.thread = threading.Thread(target=self.WebSocketServer)
