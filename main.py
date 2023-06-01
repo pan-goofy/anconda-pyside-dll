@@ -42,10 +42,13 @@ class Password(Ui_Form,QDialog):
 
         self.setupUi(self)
         self.setWindowFlag(Qt.WindowType.FramelessWindowHint)
+        #窗口置顶
+        #Sself.setWindowFlag(Qt.WindowType.WindowStaysOnTopHint)
     
      # 创建系统托盘图标
         self.tray_icon = QSystemTrayIcon(self)
         self.tray_icon.setIcon(QIcon('Icon.ico'))
+        
 
         # 创建托盘菜单
         self.tray_menu = QMenu(self)
@@ -53,6 +56,7 @@ class Password(Ui_Form,QDialog):
         self.quit_action = QAction("退出", self)
         self.tray_menu.addAction(self.show_action)
         self.tray_menu.addAction(self.quit_action)
+       
 
         # 将托盘菜单设置为系统托盘图标的菜单
         self.tray_icon.setContextMenu(self.tray_menu)
@@ -62,6 +66,7 @@ class Password(Ui_Form,QDialog):
 
         # 将“显示窗口”菜单项连接到槽函数
         self.show_action.triggered.connect(self.showNormal)
+        self.quit_action.triggered.connect(app.quit)
 
         # 将窗口最小化时隐藏窗口并显示系统托盘图标
         self.setWindowFlags(self.windowFlags() | Qt.WindowType.Tool)
