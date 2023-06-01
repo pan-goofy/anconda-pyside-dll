@@ -5,7 +5,7 @@ from threading import Thread
 import requests
 import time
 import socket
-from PyQt6.QtCore import QThread, pyqtSignal,pyqtSlot,Qt,QCoreApplication,QPoint,QMimeData
+from PyQt6.QtCore import QThread, pyqtSignal,pyqtSlot,Qt,QCoreApplication,QPoint,QMimeData,QSharedMemory
 from PyQt6.QtWidgets import QDialog,QApplication,QMessageBox,QMainWindow,QSystemTrayIcon,QMenu
 import json
 import configparser
@@ -33,6 +33,13 @@ class Password(Ui_Form,QDialog):
     isConnect  = True
     def __init__(self):
         super().__init__()
+              # 检查是否已经有一个实例运行
+        app_id = "my_app_identifier"
+        self.shared_memory = QSharedMemory(app_id)
+        if not self.shared_memory.create(1):
+            QMessageBox.critical(None, "Error", "发卡器已经运行.")
+            sys.exit()
+
         self.setupUi(self)
         self.setWindowFlag(Qt.WindowType.FramelessWindowHint)
     
@@ -94,6 +101,8 @@ class Password(Ui_Form,QDialog):
         self.getCardNumber.clicked.connect(self.getIcCardNumber)
         #写入酒店专用卡
         self.writeHotelCard.clicked.connect(self.writeHotelIcCard)
+        #写入酒店总卡
+        self.writeAllCard.clicked.connect(self.writeAllIcCard)
         #制作空白卡
         self.emptyCard.clicked.connect(self.emptyIcCard)
         #self.startSocket.clicked.connect(self.startSockets)
@@ -110,6 +119,24 @@ class Password(Ui_Form,QDialog):
         with open('config.ini', 'w') as f:
             self.cf.write(f)
         self.textLog.append(f"保存配置成功")
+    def writeAllIcCard(self):
+        buildNumber =  0
+        floor = 0
+        mac  = "000000000000".encode()
+        times  = int(time.time()) + (86400*30)
+        hotelInfo = self.hotelInfo.encode()
+        allowLockOut = False
+        res = self.clib.CE_WriteCard(hotelInfo,buildNumber,floor,mac,int(times),allowLockOut)  
+        if res==0:
+            self.textLog.append(f"写入总卡成功{res}")
+        elif res==16:
+            self.textLog.append("发卡器未连接")
+        elif res==106:
+            self.textLog.append("数据写入失败，IC卡非酒店卡或已被初始化为其它酒店的卡")  
+        else :
+            self.textLog.append(f"写入数据失败,错误码:{res}")         
+        return res    
+            
  
     def showDialog(self):
         try:

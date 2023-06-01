@@ -12,7 +12,7 @@ from PyQt6 import QtCore, QtGui, QtWidgets
 class Ui_Form(object):
     def setupUi(self, Form):
         Form.setObjectName("Form")
-        Form.resize(796, 758)
+        Form.resize(796, 812)
         icon = QtGui.QIcon()
         icon.addPixmap(QtGui.QPixmap("C:/Users/Administrator/.designer/backup/Icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         Form.setWindowIcon(icon)
@@ -260,6 +260,14 @@ class Ui_Form(object):
         self.openSound.setObjectName("openSound")
         self.horizontalLayout_14.addWidget(self.openSound)
         self.verticalLayout.addLayout(self.horizontalLayout_14)
+        self.writeAllCard = QtWidgets.QPushButton(parent=self.cardFrame)
+        self.writeAllCard.setMinimumSize(QtCore.QSize(0, 50))
+        self.writeAllCard.setStyleSheet("#writeAllCard{\n"
+"border-radius:20px;    \n"
+"background-color: rgb(206, 228, 255);\n"
+"}")
+        self.writeAllCard.setObjectName("writeAllCard")
+        self.verticalLayout.addWidget(self.writeAllCard)
         spacerItem3 = QtWidgets.QSpacerItem(20, 30, QtWidgets.QSizePolicy.Policy.Minimum, QtWidgets.QSizePolicy.Policy.Fixed)
         self.verticalLayout.addItem(spacerItem3)
         self.horizontalLayout_13 = QtWidgets.QHBoxLayout()
@@ -408,6 +416,7 @@ class Ui_Form(object):
         self.setCard.setText(_translate("Form", "配置发卡器"))
         self.getCardNumber.setText(_translate("Form", "获取卡号"))
         self.openSound.setText(_translate("Form", "发声"))
+        self.writeAllCard.setText(_translate("Form", "写入酒店总卡"))
         self.addCard.setText(_translate("Form", "添加ic卡"))
         self.readCard.setText(_translate("Form", "读取ic卡"))
         self.clearCard.setText(_translate("Form", "清空ic卡"))
@@ -426,13 +435,3 @@ class Ui_Form(object):
 "p, li { white-space: pre-wrap; }\n"
 "</style></head><body style=\" font-family:\'SimSun\'; font-size:9pt; font-weight:400; font-style:normal;\">\n"
 "<p style=\"-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><br /></p></body></html>"))
-
-
-if __name__ == "__main__":
-    import sys
-    app = QtWidgets.QApplication(sys.argv)
-    Form = QtWidgets.QWidget()
-    ui = Ui_Form()
-    ui.setupUi(Form)
-    Form.show()
-    sys.exit(app.exec())
