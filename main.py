@@ -329,11 +329,13 @@ class Password(Ui_Form,QDialog):
         self.worker.result.connect(self.show_result)
         self.worker_thread.started.connect(self.worker.do_work)
         self.worker_thread.start()  
+        return 0
     @pyqtSlot(str)
     def show_result(self, result):
         print("返回结果",result)
         self.hotelInfo =result
-        self.textLog.append(result)      
+        self.textLog.append(result)    
+  
     def addIcCard(self):
         buildNumber =  int(self.building.text())
         floor = int(self.floor.text())
