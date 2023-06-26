@@ -15,6 +15,10 @@ from socketServerMain import SocketThread,OutputPower
 from errorMsg import getMsg
 from httpclient import Worker
 import image_rc
+# 日志模块
+import logging
+import traceback
+import datetime
 
 class Password(Ui_Form,QDialog):
     clib = ctypes.CDLL("./64/CardEncoder.dll")
@@ -248,10 +252,13 @@ class Password(Ui_Form,QDialog):
         re = self.clib.CE_Beep(length, interval, number)
         if re==0:
             self.textLog.append(f"发声成功{re},音长{length},间隔{interval},次数{number}")    
+            self.writeLog(f"发声成功{re},音长{length},间隔{interval},次数{number}")
         elif re==16:      
-            self.textLog.append(f"发卡器未连接{re}")    
+            self.textLog.append(f"发卡器未连接{re}")  
+            self.writeLog(f"发卡器未连接{re}")
         else:
             self.textLog.append(f"发声失败{re}") 
+            self.writeLog(f"发声失败{re}")
         return re     
     
     def getIcCardNumber(self):  
@@ -306,22 +313,9 @@ class Password(Ui_Form,QDialog):
             self.textLog.append(f"发卡器断开失败{re}") 
         return re          
     def getHotel(self):
-        url = "https://cnapi.ttlock.com/v3/hotel/getInfo"
-        data = {
-            "clientId": self.appid.text(),
-            "clientSecret": self.secrets.text(),
-            "date": int(time.time()) * 1000,
-        }
-        response = requests.post(url, params=data).text
-        try:
-            data = json.loads(response)
-            self.hotelInfo = data['hotelInfo']
-        except Exception as e :    
-            self.textLog.append(f"json解析失败")
-        self.textLog.append(f"获取hotelInfo: {data['hotelInfo']}")       
-        return 0
-    def getHotel(self):
         self.textLog.append("获取hotelInfo中...")
+        self.writeLog("获取hotelInfo中...")
+        self.getHotelInfo.setDisabled(True)
         self.worker_thread = QThread()
         self.worker = Worker(self.appid.text(),self.secrets.text())
         self.worker.moveToThread(self.worker_thread)
@@ -333,8 +327,10 @@ class Password(Ui_Form,QDialog):
     @pyqtSlot(str)
     def show_result(self, result):
         print("返回结果",result)
+        self.writeLog(f"返回结果{result}")
         self.hotelInfo =result
-        self.textLog.append(result)    
+        self.textLog.append(result)   
+        self.getHotelInfo.setDisabled(False) 
   
     def addIcCard(self):
         buildNumber =  int(self.building.text())
@@ -346,12 +342,16 @@ class Password(Ui_Form,QDialog):
         res = self.clib.CE_WriteCard(hotelInfo,buildNumber,floor,mac,int(time),allowLockOut)  
         if res==0:
             self.textLog.append(f"写入数据成功{res}")
+            self.writeLog(f"写入数据成功{res}")
         elif res==16:
             self.textLog.append("发卡器未连接")
+            self.writeLog("发卡器未连接")
         elif res==106:
             self.textLog.append("数据写入失败，IC卡非酒店卡或已被初始化为其它酒店的卡")  
+            self.writeLog("数据写入失败，IC卡非酒店卡或已被初始化为其它酒店的卡")
         else :
-            self.textLog.append(f"写入数据失败,错误码:{res}")         
+            self.textLog.append(f"写入数据失败,错误码:{res}")     
+            self.writeLog(f"写入数据失败,错误码:{res}")    
         return res    
     def readIcCard(self):
         hotelInfo = self.hotelInfo.encode()
@@ -363,52 +363,69 @@ class Password(Ui_Form,QDialog):
             #获取字符串数组
             try:
                 self.textLog.append(f"读取数据成功{hotel_array_ptr.value.decode()}")
+                self.writeLog(f"读取数据成功{hotel_array_ptr.value.decode()}")    
                 self.icCards = hotel_array_ptr.value
             except:
                 print("读取数据错误")  
            
         elif res==16:
             self.textLog.append("发卡器未连接")
+            self.writeLog("发卡器未连接")    
         elif res==106:
             self.textLog.append("读取失败，IC卡非酒店卡或已被初始化为其它酒店的卡")  
+            self.writeLog("读取失败，IC卡非酒店卡或已被初始化为其它酒店的卡")   
         else :
-            self.textLog.append(f"读取数据失败,错误码:{res}")   
+            self.textLog.append(f"读取数据失败,错误码:{res}")  
+            self.writeLog(f"读取数据失败,错误码:{res}")   
+ 
         return res     
     def clearIcCard(self):
         hotelInfo = self.hotelInfo.encode()
         res = self.clib.CE_ClearCard(hotelInfo)
         if res==0:
             self.textLog.append("ic卡清空成功")
+            self.writeLog("ic卡清空成功") 
         elif res==16:
             self.textLog.append("发卡器未连接")
+            self.writeLog("发卡器未连接") 
         elif res==106:
             self.textLog.append("操作失败，IC卡非酒店卡或已被初始化为其它酒店的卡")  
+            self.writeLog("操作失败，IC卡非酒店卡或已被初始化为其它酒店的卡") 
         else :
             self.textLog.append(f"操作数据失败,错误码:{res}") 
+            self.writeLog(f"操作数据失败,错误码:{res}") 
         return res    
     def writeHotelIcCard(self):
         hotelInfo = self.hotelInfo.encode()
         res = self.clib.CE_InitCard(hotelInfo) 
         if res==0:
             self.textLog.append("ic卡酒店专用卡成功")
+            self.writeLog("ic卡酒店专用卡成功") 
         elif res==16:
             self.textLog.append("发卡器未连接")
+            self.writeLog("发卡器未连接")
         elif res==106:
             self.textLog.append("恢复空白卡失败，IC卡非酒店卡或已被初始化为其它酒店的卡")  
+            self.writeLog("恢复空白卡失败，IC卡非酒店卡或已被初始化为其它酒店的卡")
         else :
             self.textLog.append(f"操作数据失败,错误码:{res}") 
+            self.writeLog(f"操作数据失败,错误码:{res}")
         return res    
     def emptyIcCard(self):
         hotelInfo = self.hotelInfo.encode()
         res = self.clib.CE_DeInitCard(hotelInfo) 
         if res==0:
             self.textLog.append("恢复空白Ic卡成功")
+            self.writeLog("恢复空白Ic卡成功")
         elif res==16:
             self.textLog.append("发卡器未连接")
+            self.writeLog("发卡器未连接")
         elif res==106:
             self.textLog.append("恢复空白卡失败，IC卡非酒店卡或已被初始化为其它酒店的卡")  
+            self.writeLog("恢复空白卡失败，IC卡非酒店卡或已被初始化为其它酒店的卡")
         else :
             self.textLog.append(f"操作数据失败,错误码:{res}") 
+            self.writeLog(f"操作数据失败,错误码:{res}")
         return res                
     def get_local_ip(self):
         s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
@@ -437,12 +454,22 @@ class Password(Ui_Form,QDialog):
         # 点击关闭按钮时隐藏窗口并显示系统托盘图标
         event.ignore()
         self.hide()
-        self.tray_icon.showMessage("应用程序最小化到托盘", "单击托盘图标以恢复应用程序。")        
-
-
-                       
+        self.tray_icon.showMessage("应用程序最小化到托盘", "单击托盘图标以恢复应用程序。")    
+    def writeLog(self,msg):
+        filelog = datetime.date.today()
+        logging.basicConfig(filename=f'{filelog}.txt', level=logging.INFO, filemode='a', format='【%(asctime)s】 【%(levelname)s】 >>>  %(message)s', datefmt = '%Y-%m-%d %H:%M')
+        logging.info(f'{msg}')
     
 if __name__ == "__main__":
-    app = QApplication(sys.argv)
-    password = Password()
-    app.exit(app.exec())
+    filelog = datetime.date.today()
+    logging.basicConfig(filename=f'{filelog}.txt', level=logging.DEBUG, filemode='a', format='【%(asctime)s】 【%(levelname)s】 >>>  %(message)s', datefmt = '%Y-%m-%d %H:%M')
+    try:
+        app = QApplication(sys.argv)
+        password = Password()
+        app.exit(app.exec())
+    except Exception as e:
+         logging.error("主程序抛错：")
+         logging.error(e)
+         logging.error("\n" + traceback.format_exc())
+    
+
